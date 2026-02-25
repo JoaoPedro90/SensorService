@@ -1,3 +1,4 @@
+using SensorService.Infrastructure.Messaging;
 using SensorService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using SensorService.Application.Services;
@@ -25,8 +26,11 @@ builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 builder.Services.AddScoped<SensorReadingAppService>();
 
 
-builder.Services.AddSingleton<ITalhaoValidator, DummyTalhaoValidator>();
+builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMq"));
 
+builder.Services.AddSingleton<TalhaoRegistry>();
+builder.Services.AddSingleton<ITalhaoValidator, RabbitMqTalhaoValidator>();
+builder.Services.AddHostedService<TalhaoEventsConsumer>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
